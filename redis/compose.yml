@@ -1,0 +1,37 @@
+# 部署时请确保：
+#   1. redis.conf 文件存在
+
+name: public_services
+
+services:
+  redis:
+    image: evans2jiang/redis:7.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: language-redis
+    ports:
+      - 7379:6379
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - public-service-network
+      - language-backend-network
+    healthcheck:
+      test: 'cat status |grep success'
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+volumes:
+  redis-data:
+    name: redis-data
+
+
+networks:
+  public-service-network:
+    name: public-service-network
+  language-backend-network:
+    name: language-backend-network

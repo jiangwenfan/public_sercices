@@ -1,0 +1,4 @@
+select 0
+set db_comment language
+select 1
+set db_comment "language celery"
