@@ -1,0 +1,58 @@
+# 部署时请确保：
+#   1. server.crt 文件存在
+#   2. server.key 文件存在
+
+name: public_services
+
+services:
+  nginx:
+    image: nginx:1.24
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      # 配置文件
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./conf.d:/etc/nginx/conf.d
+      # 认证文件
+      - ./server.crt:/etc/nginx/server.crt
+      - ./server.key:/etc/nginx/server.key
+      # 静态资源
+      - ./favicon.ico:/nginx/favicon.ico  
+      # 本地存储
+      - local_files:/nginx/files  
+    ports:
+      # [临时]debug调试接口,https提供时，删除
+      # - "8080:8080"
+      # ----------frontend----------
+      - "80:80"
+      - "443:443"
+      # ----------backend----------
+      # interview backend
+      - "9070:9070"
+      # language backend
+      - "9080:9080"
+    networks:
+      - public-service-network
+      - interview-backend-network
+      - interview-frontend-network
+      - language-backend-network
+    healthcheck:
+      test: 'curl http://localhost/check'
+      interval: 1s
+      timeout: 2s
+      retries: 120
+   
+
+volumes:
+  local_files:
+    name: local_files
+
+networks:
+  public-service-network:
+    name: public-service-network
+  interview-backend-network:
+    name: interview-backend-network
+  interview-frontend-network:
+    name: interview-frontend-network
+  language-backend-network:
+    name: language-backend-network

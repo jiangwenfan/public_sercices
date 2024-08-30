@@ -1,0 +1,39 @@
+# 部署时请确保：
+#   1. .env 部署文件存在
+
+name: public_services
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8.3.0
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=${MYSQL_ROOT_PASSWORD} --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    env_file:
+      - .env
+    networks:
+      - public-service-network
+      - interview-backend-network
+      - language-backend-network
+
+
+volumes:
+  mysql_data:
+    name: mysql_data
+
+networks:
+  public-service-network:
+    name: public-service-network
+  interview-backend-network:
+    name: interview-backend-network
+  language-backend-network:
+    name: language-backend-network
