@@ -1,4 +1,4 @@
-# 部署时请确保：
+# 生产环境部署时请确保：
 #   1. redis.conf 文件存在
 
 name: public_services
@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: language-redis
+    container_name: redis
     ports:
       - 7379:6379
     volumes:

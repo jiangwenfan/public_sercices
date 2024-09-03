@@ -1,3 +1,4 @@
+# 语音转文本服务
 name: backend
 services:
   whisper:
@@ -8,14 +9,14 @@ services:
     build:
       context: ./../backend_services/whisper
       dockerfile: Dockerfile
-    restart: unless-stopped
+    restart:
+      unless-stopped
       #network_mode: host
       #:extra_hosts:
       # /etc/hosts # 连接kafka的对应关系
       #- "UEBA-Flink01:192.168.90.168"
     volumes:
       - ./whisper:/whisper/data/
-
 
 networks:
   language-network:
