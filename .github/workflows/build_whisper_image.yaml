@@ -1,0 +1,93 @@
+name: build whisper image and push to docker hub
+
+# 当基础whisper镜像，修改时候触发，并且，推送到docker hub上
+# 当前在本地构建，action上构建时，由于镜像过大无法构建，需要后续使用自托管的机器构建
+#on:
+#  push:
+#    paths:
+#      - "backend_services/whisper/Dockerfile-action"
+#      - "backend_services/whisper/requirements-action"
+#      - ".github/workflows/build_whisper_image.yaml"
+
+
+jobs:
+  build_base_image:
+    runs-on: self-hosted
+    name: build whisper base image
+    #runs-on: ubuntu-latest
+
+    steps:
+      - name: pull code
+        uses: actions/checkout@v3
+
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          # 要推送的dockerhub上的命名空间和repository
+          images: ${{ secrets.DOCKER_USERNAME }}/language-whisper-base
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          # platforms: linux/amd64,linux/arm64
+          context: ./backend_services/whisper/
+          file: ./backend_services/whisper/Dockerfile-action
+          push: true
+          # 镜像的tag
+          tags: ${{ secrets.DOCKER_USERNAME }}/language-whisper-base:latest
+          labels: ${{ steps.meta.outputs.labels }}
+
+
+  # build_whisper_image:
+  #   name: build whisper final image
+  #   runs-on: ubuntu-latest
+  #   needs: build_base_image
+
+  #   steps:
+  #     - name: pull code
+  #       uses: actions/checkout@v3
+
+  #     - name: Set up QEMU
+  #       uses: docker/setup-qemu-action@v3
+
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v3
+
+  #     - name: Log in to Docker Hub
+  #       uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_PASSWORD }}
+
+  #     - name: Extract metadata (tags, labels) for Docker
+  #       id: meta
+  #       uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+  #       with:
+  #         # 要推送的dockerhub上的命名空间和repository
+  #         images: ${{ secrets.DOCKER_USERNAME }}/language-whisper
+
+  #     - name: Build and push Docker image
+  #       uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+  #       with:
+  #         platforms: linux/amd64,linux/arm64
+  #         context: ./backend_services/whisper/
+  #         file: ./backend_services/whisper/Dockerfile-action
+  #         push: true
+  #         # 镜像的tag
+  #         tags: ${{ secrets.DOCKER_USERNAME }}/language-whisper:latest
+  #         labels: ${{ steps.meta.outputs.labels }}
+  #       # 定义触发条件为 b.txt 文件被修改或者基础镜像构建任务完成
+  #       if: "github.event_name == 'push' && github.event.inputs.file == 'b.txt' || needs.build_base_image.outputs.status == 'success'"
