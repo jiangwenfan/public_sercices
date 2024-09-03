@@ -1,0 +1,16 @@
+{{ define "email.html" }}
+    {{- if gt (len .Alerts.Firing) 0 -}}{{ range .Alerts }}
+    @报警<br>
+    <strong>host:</strong> {{ .Labels.host }}<br>
+    <strong>env:</strong> {{ .Labels.group}} <br><br>
+    <strong>summary:</strong> {{ .Annotations.summary }}<br>
+    <strong>description:</strong> {{ .Annotations.description }}<br>
+    <strong>datetime:</strong> {{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}<br>
+    {{ end }}{{ end -}}<br>
+    {{- if gt (len .Alerts.Resolved) 0 -}}{{ range .Alerts }}<br>
+    @恢复<br>
+    <strong>实例:</strong> {{ .Labels.instance }}<br>
+    <strong>信息:</strong> {{ .Annotations.summary }}<br>
+    <strong>恢复:</strong> {{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}<br>
+    {{ end }}{{ end -}}
+    {{- end }}

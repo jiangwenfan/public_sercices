@@ -1,0 +1,4 @@
+common-packages==0.1.16
+kafka-python
+ipython
+types-requests

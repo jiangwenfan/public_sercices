@@ -1,0 +1,11 @@
+[client]
+# 不使用
+user=root
+password = cloudfall@123K
+database = redk_base
+
+[client.servers]
+# 所有db实例使用这个配置
+user=root
+password = cloudfall@123K
+database = redk_base

@@ -1,0 +1,10 @@
+services:
+
+  coqui_tts:
+    container_name: coqui-tts
+    hostname: coqui
+    image: evans2jiang/coqui_tts:0.1
+    build: .
+    restart: unless-stopped
+    volumes:
+      - ./coqui:/coqui/data

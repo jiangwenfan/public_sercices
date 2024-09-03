@@ -1,0 +1,39 @@
+global:
+  smtp_smarthost: smtp.feishu.cn:465
+  smtp_from: team.redkernel@cloudfall.cn
+  smtp_auth_username: team.redkernel@cloudfall.cn
+  smtp_auth_identity: team.redkernel@cloudfall.cn
+  smtp_auth_password: YWA4posa2pGeItaD
+  # gmail支持tls,但是feishu不支持
+  smtp_require_tls: false
+
+templates:  # 增加 templates 配置，指定模板文件
+    - '/etc/alertmanager/template_email.tmpl'
+
+
+route:
+  group_by: ['alertname']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'default-receivers-by-email'
+
+
+receivers:
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://127.0.0.1:5001/'
+
+  - name: 'default-receivers-by-email'
+    email_configs:
+      - to: jason.jiang@cloudfall.cn
+        send_resolved: true
+        html: '{{ template "email.html" . }}' # 此处通过 html 指定模板文件中定义的 email.html 模板
+
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']

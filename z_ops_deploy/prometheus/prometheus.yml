@@ -1,0 +1,83 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'codelab-monitor'
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+        - 192.168.90.167:8089
+
+  - job_name: mysqld
+    static_configs:
+      - targets:
+        - 192.168.90.167:9104
+
+  - job_name: 'node'
+
+    # Override the global default and scrape targets from this job every 3 seconds.
+    scrape_interval: 3s
+
+    # 监控物理节点
+    static_configs:
+      - targets: ['192.168.90.167:9100']
+        labels:
+          group: 'production'
+
+      # - targets: ['localhost:8080', 'localhost:8081']
+      #   labels:
+      #     group: 'production'
+
+      # - targets: ['localhost:8082']
+      #   labels:
+      #     group: 'canary'
+
+  # - job_name: mysql # To get metrics about the mysql exporter’s targets
+  #   params:
+  #     target: ["192.168.90.167:3307"]
+  #     # auth_module: ["client.db1"]
+  #   static_configs:
+  #     - targets:
+  #       - '192.168.90.167:9104'
+        # - unix:///run/mysqld/mysqld.sock
+    # relabel_configs:
+      # - source_labels: [__address__]
+      #   target_label: __param_target
+      # - source_labels: [__param_target]
+      #   target_label: instance
+      # - target_label: __address__
+        # The mysqld_exporter host:port
+        # replacement: localhost:9104
+
+# download and install node exporter
+# wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+# tar xvfz node_exporter-1.6.1.linux-amd64.tar.gz
+# ./node_exporter
+
+# mysql expoeter
+# microdnf install wget
+# wget https://github.com/prometheus/mysqld_exporter/releases/download/v0.15.0/mysqld_exporter-0.15.0.linux-amd64.tar.gz
+# tar zxvf mysqld_exporter-0.15.0.linux-amd64.tar.gz
+# ./
+# docker run \
+#   --volume=/:/rootfs:ro \
+#   --volume=/var/run:/var/run:rw \
+#   --volume=/sys:/sys:ro \
+#   --volume=/var/lib/docker/:/var/lib/docker:ro \
+#   --publish=8089:8080 \
+#   --detach=true \
+#   --name=cadvisor \
+#   google/cadvisor:latest

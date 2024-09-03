@@ -1,0 +1,11 @@
+groups:
+- name: host_Stats_Alert
+  rules:
+  - alert: LowDiskSpace
+    expr: node_filesystem_avail_bytes{mountpoint='/home'} / 1024 / 1024 / 1024 < 3
+    for: 1m
+    labels:
+      severity: pages
+    annotations:
+      summary: "/home分区磁盘空间不足"
+      description: "/home分区磁盘不足3G,主机是: {{ $labels.host }} ,当前值是{{ $value }}G"

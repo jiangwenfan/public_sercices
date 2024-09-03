@@ -1,0 +1,61 @@
+name: language
+services:
+  redis_exporter:
+    container_name: redis_exporter
+    # image: oliver006/redis_exporter
+    # 带有shell的image
+    image: oliver006/redis_exporter:alpine
+    ports:
+      - 9121:9121
+    networks:
+      - redk-network
+    restart: unless-stopped
+    # 不使用。自定义监控指标。通过发送lua脚本到redis获取
+    volumes:
+      - ./custom_metrics.lua:/custom_metrics.lua
+    environment:
+      - REDIS_EXPORTER_SCRIPT=/custom_metrics.lua
+      # - REDIS_ADDR=redis://192.168.90.167:6379
+
+
+  mysql_exporter:
+    container_name: mysql_exporter
+    image: prom/mysqld-exporter
+    restart: unless-stopped
+    ports:
+      - "9104:9104"
+    networks:
+      - redk-network
+    command:
+      - "--config.my-cnf=$HOME/.my.cnf"
+      # 不使用
+      - "--mysqld.address=192.168.90.167:3307"
+    volumes:
+      - ./mysql_exporter.yml:$HOME/.my.cnf
+
+
+  cAdvisor:
+    # 监控容器
+    container_name: cAdvisor
+    image: google/cadvisor:latest
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    ports:
+      - "9189:8080"
+    networks:
+      - redk-network
+    restart: unless-stopped
+    privileged: true
+    devices:
+      - /dev/kmsg
+    # detach: true
+
+
+networks:
+  language-network:
+    name: language-network
+    external: true

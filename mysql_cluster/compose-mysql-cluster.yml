@@ -1,0 +1,111 @@
+name: language
+services:
+  # 采用双主双从的架构,实现高可用mysql架构
+  mysql-master1:
+    container_name: language-mysql-master1
+    image: mysql:8.3.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin@123K
+      MYSQL_DATABASE: language
+      MYSQL_USER: django
+      MYSQL_PASSWORD: admin@123K
+    volumes:
+      - mysql_master1:/var/lib/mysql
+      - ./../backend_services/mysql/master1/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./../backend_services/mysql/master1/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=admin@123K --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    networks:
+      - language-network
+
+  # master2 主库，不需要可以注释.
+  # master2作为主库中的备库，master1启动之后再启动
+  mysql-master2:
+    container_name: language-mysql-master2
+    image: mysql:8.3.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin@123K
+    volumes:
+      - mysql_master2:/var/lib/mysql
+      - ./../backend_services/mysql/master2/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./../backend_services/mysql/master2/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3407:3306"
+    depends_on:
+      mysql-master1:
+        condition: service_healthy
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=admin@123K --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    networks:
+      - language-network
+
+  # 不需要slave1从库时，可注释掉
+  mysql-slave1:
+    container_name: language-mysql-slave1
+    image: mysql:8.3.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin@123K
+    volumes:
+      - mysql_slave1:/var/lib/mysql
+      - ./../backend_services/mysql/slave1/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./../backend_services/mysql/slave1/init_slave.sql:/docker-entrypoint-initdb.d/init_slave.sql
+    ports:
+      - "3308:3306"
+    depends_on:
+      mysql-master1:
+        condition: service_healthy
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=admin@123K --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    networks:
+      - language-network
+
+  # 不需要slave2从库时，可注释掉
+  mysql-slave2:
+    container_name: language-mysql-slave2
+    image: mysql:8.3.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin@123K
+    volumes:
+      - mysql_slave2:/var/lib/mysql
+      - ./../backend_services/mysql/slave2/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+      - ./../backend_services/mysql/slave2/init_slave.sql:/docker-entrypoint-initdb.d/init_slave.sql
+    ports:
+      - "3408:3306"
+    depends_on:
+      mysql-master2:
+        condition: service_healthy
+    healthcheck:
+      test: '/usr/bin/mysql --user=root --password=admin@123K --execute "SHOW DATABASES;"'
+      interval: 4s
+      timeout: 10s
+      retries: 60
+    networks:
+      - language-network
+
+volumes:
+  mysql_master1:
+  mysql_master2:
+  mysql_slave1:
+  mysql_slave2:
+
+
+networks:
+  language-network:
+    name: language-network
+    # mysql是第一个启动的容器，所以负责创建网络`language-network`
+    #external: true

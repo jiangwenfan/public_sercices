@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+
+  elasticsearch:
+    # image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    #image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
+    container_name: es
+    restart: unless-stopped
+    # volumes:
+    #   - ./test:/usr/share/elasticsearch/data
+    #
+    environment:
+      - "discovery.type=single-node"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    healthcheck:
+      test: 'curl -X GET "localhost:9200/_cat/nodes?v=true&pretty"'
+      interval: 5s
+      timeout: 20s
+      retries: 120
+      start_period: 10s
+    networks:
+      - test
+
+
+networks:
+  test:
+    name: test-network

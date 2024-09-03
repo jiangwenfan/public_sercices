@@ -1,0 +1,23 @@
+name: backend
+services:
+  whisper:
+    container_name: whisper
+    hostname: whisper
+    image: evans2jiang/whisper:0.1
+    env_file: .env
+    build:
+      context: ./../backend_services/whisper
+      dockerfile: Dockerfile
+    restart: unless-stopped
+      #network_mode: host
+      #:extra_hosts:
+      # /etc/hosts # 连接kafka的对应关系
+      #- "UEBA-Flink01:192.168.90.168"
+    volumes:
+      - ./whisper:/whisper/data/
+
+
+networks:
+  language-network:
+    name: language-network
+    external: true

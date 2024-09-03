@@ -1,0 +1,31 @@
+FROM ubuntu:latest
+
+WORKDIR /whisper
+
+# install system dependency
+RUN apt update && apt install curl ffmpeg python3 python3-pip -y
+RUN apt-get clean && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -o rustup-init.sh
+COPY ./rustup-init.sh /whisper/rustup-init.sh
+RUN bash rustup-init.sh -y
+
+# install python dependency
+COPY ./requirments-action.txt /whisper/requirments-action.txt
+RUN pip install -r requirments-action.txt
+
+# download model
+# en model
+COPY ./sample.mp3 /whisper/sample.mp3
+RUN whisper /whisper/sample.mp3 --language English
+RUN whisper /whisper/sample.mp3 --language English --model medium
+# zh model. 取消下载中文模型
+# COPY ./sample_zh.mp3 /whisper/sample_zh.mp3
+# RUN whisper /whisper/sample_zh.mp3 --language Chinese
+# RUN whisper /whisper/sample_zh.mp3 --language Chinese  --model medium
+
+# create data dir
+RUN mkdir /whisper/data
+
+# docker build -f Dockerfile-action -t evans2jiang/whisper-base .

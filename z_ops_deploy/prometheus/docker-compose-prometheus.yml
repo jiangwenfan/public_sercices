@@ -1,0 +1,63 @@
+name: language
+services:
+  prometheus:
+    container_name: language-prometheus
+    image: prom/prometheus
+    expose:
+      - 9090
+    # ports:
+    #   - "9090:9090"
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+    # https://stackoverflow.com/questions/75234147/nginx-reverse-proxy-fails-to-access-prometheus-container
+      - "--web.external-url=http://localhost:8080/prometheus/"
+    volumes:
+      - ./../backend_services/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      # 告警规则
+      - ./rules:/etc/prometheus/rules
+      - prometheus_data:/prometheus
+    networks:
+      - language-network
+
+  alertmanager:
+    container_name: alertmanager
+    image: quay.io/prometheus/alertmanager
+    volumes:
+      - ./alert_manager.yml:/etc/alertmanager/alertmanager.yml
+      - ./template_email.tmpl:/etc/alertmanager/template_email.tmpl
+    expose:
+      - 9093
+    # ports:
+    #   - "9099:9093"
+    restart: unless-stopped
+    networks:
+      - language-network
+
+  mysql_exporter:
+    container_name: language-mysql-exporter
+    image: prom/mysqld-exporter
+    restart: unless-stopped
+    expose:
+      - 9104
+    ports:
+      - "9104:9104"
+    # environment:
+    #   - DATA_SOURCE_NAME=root:cloudfall@123K@(192.168.90.167:3307)/redk_base
+    command:
+      - "--config.my-cnf=/etc/my-cnf.cnf"
+      - "--mysqld.address=192.168.90.167:3307"
+    # volumes:
+    #   - ./mysql_exporter.yml:/etc/my-cnf.cnf
+    networks:
+      - language-network
+
+volumes:
+  prometheus_data:
+
+networks:
+  language-network:
+    name: language-network

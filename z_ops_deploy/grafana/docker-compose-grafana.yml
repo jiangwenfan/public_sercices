@@ -1,0 +1,23 @@
+name: language
+services:
+
+  grafana:
+    container_name: language-grafana
+    image: grafana/grafana-oss
+    restart: unless-stopped
+    expose:
+      - "3000"
+    # ports:
+    #   - "3000:3000"
+    volumes:
+      - ./../backend_services/grafana/grafana.ini:/etc/grafana/grafana.ini # grafana的静态配置文件
+      - grafana-storage:/var/lib/grafana # grafana运行过程中产生配置数据
+    networks:
+      - language-network
+
+volumes:
+  grafana-storage:
+
+networks:
+  language-network:
+    name: language-network

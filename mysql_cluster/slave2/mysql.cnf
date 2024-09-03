@@ -1,0 +1,13 @@
+[mysqld]
+innodb_log_file_size=500M
+
+slow_query_log=1
+long_query_time=1
+slow_query_log_file=/var/log/slow_query.log
+sort_buffer_size=1024M
+
+
+# 主从同步的从库配置
+server-id=4
+# 1只读,0读写
+read-only=1

@@ -1,0 +1,8 @@
+version: "3.9"
+services:
+  paddle:
+    container_name: paddle
+    hostname: paddle
+    image: paddle_ocr:latest
+    build: ./
+    restart: unless-stopped

@@ -1,0 +1,108 @@
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    monitor: 'codelab-monitor'
+
+
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # [host]收集节点数据
+  - job_name: 'host_node'
+    scrape_interval: 3s
+    static_configs:
+      - targets: ['192.168.90.167:9100']
+        labels:
+          group: 'dev_env'
+    relabel_configs:
+      # 获取node_exporter的ip地址作为host标签
+      - source_labels: [__address__]
+        target_label: 'host'
+        regex: '(.+):.*'
+        replacement: '${1}'
+
+
+
+  # [db]收集所有redk_base数据库的监控
+  - job_name: db_mysql_redk_base
+    static_configs:
+      - targets:
+        # 会覆盖默认启动服务器.
+        # prometheus可访问即可
+        - 192.168.90.167:3308
+        - 192.168.90.167:3307
+        labels:
+          db_name: 'redk_base'
+    params:
+      # 所有数据库公用同一套用户和密码
+      auth_module: ["client.servers"]
+    metrics_path: /probe
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        # mysql_exporter的地址,可容器地址
+        # 最好可宿主机地址,prometheus页面可以直接跳转过来
+        replacement: 192.168.90.167:9104
+
+  # [cache] 收集所有redk的redis缓存监控数据
+  - job_name: 'cache_redis_redk'
+    static_configs:
+      - targets:
+        # prometheus可访问即可
+        - redis://redk-redis:6379
+        - redis://redk-redis-dev:6379
+    metrics_path: /scrape
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        # redis_exporter的地址，可容器内。
+        # 最好可宿主机地址,prometheus页面可以直接跳转过来
+        replacement: 192.168.90.167:9121
+
+
+  # 收集 redis_exporter自身监控数据
+  - job_name: 'redis_exporter_redk'
+    static_configs:
+      - targets:
+        # 当配置监控自身数据时，也会同时访问本地redis://localhost:6379的redis。
+        # 所以容器会输出连接失败的信息。
+
+        # 如果想避免输出错误信息，使用REDIS_ADDR环境变量增加一个需要监控的redis
+
+        # 使用宿主机地址，方便prometheus跳转
+        - 192.168.90.167:9121
+
+  # [host]收集当前节点的所有容器监控数据
+  - job_name: host_cAdvisor
+    static_configs:
+    - targets:
+      - 192.168.90.167:9189
+      labels:
+        group: 'node3_container'
+
+rule_files:
+  # 加载告警规则配置
+  - /etc/prometheus/rules/*.rules
+
+alerting:
+  # 配置告警中心alert manager
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - '192.168.90.167:9099'
+# download and install node exporter
+# wget https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+# tar xvfz node_exporter-1.6.1.linux-amd64.tar.gz
+# ./node_exporter

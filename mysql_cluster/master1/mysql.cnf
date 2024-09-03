@@ -1,0 +1,17 @@
+[mysqld]
+innodb_log_file_size=500M
+
+slow_query_log=1
+long_query_time=1
+slow_query_log_file=/var/log/slow_query.log
+sort_buffer_size=1024M
+
+
+# 主从同步的主库配置
+server-id=1
+# 1只读,0读写
+read-only=0
+
+# 指定当master1作从服务器时，获取的更新数据，是否写入自己的binlog。
+# 注意创建表,这种DDL语句不会同步链状复制到下游的下游的从服务器；只有当表中含有数据时，才会触发同步
+log_replica_updates=ON
