@@ -1,7 +1,17 @@
 [mysqld]
-innodb_log_file_size=500M
+#innodb_log_file_size=500M
 
 slow_query_log=1
 long_query_time=1
 slow_query_log_file=/var/log/slow_query.log
-sort_buffer_size=1024M
+#sort_buffer_size=1024M
+
+# 内存优化
+#缓存表和索引数据的主要内存分配
+innodb_buffer_pool_size = 50M
+#减少最大连接数
+max_connections = 15
+#日志缓冲区大小
+innodb_log_buffer_size = 8M
+#关闭性能数据收集
+performance_schema = OFF
