@@ -7,3 +7,4 @@ language-frontend.conf
 interview-backend.conf
 interview-frontend.conf
 init.sql
+node_modules

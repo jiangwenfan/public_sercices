@@ -3,7 +3,7 @@
 # 构建方式:
 # 仅支持 [手动构建], 如果有base构建流程，需要等待base构建完成后再进行最终镜像构建
 
-name: build [redis] and push
+name: build [postlight] and push
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ on:
 
 jobs:
   deploy:
-    name: build base docker image
+    name: build postlight docker image
     runs-on: ubuntu-latest
 
     steps:
@@ -38,14 +38,14 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: ${{ secrets.DOCKER_USERNAME }}/language-backend
+          images: ${{ secrets.DOCKER_USERNAME }}/html-parser-postlight
 
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           platforms: linux/amd64,linux/arm64
-          context: ./language_backend/
-          file: ./language_backend/Dockerfiles/Dockerfile-pro
+          context: ./html_parser_postlight/
+          file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/language-backend:${{ inputs.tag }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/html-parser-postlight:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
