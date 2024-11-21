@@ -1,0 +1,129 @@
+name: backend
+
+services:
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    restart: unless-stopped
+    ports:
+      - 9090:8080
+    depends_on:
+      - kafka-plain
+      - kafka-sasl-plaintext
+    environment:
+      KAFKA_CLUSTERS_0_NAME: "plain-cluster"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "kafka-plain:9092"
+      KAFKA_CLUSTERS_1_NAME: "sasl-plaintext-cluster"
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: "kafka-sasl-plaintext:9092"
+      KAFKA_CLUSTERS_1_PROPERTIES_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      KAFKA_CLUSTERS_1_PROPERTIES_SASL_MECHANISM: PLAIN
+      # 将多行文本拼接成一行
+      KAFKA_CLUSTERS_1_PROPERTIES_SASL_JAAS_CONFIG: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="admin"
+        password="admin123";
+
+    networks:
+      - kafka-network
+
+  # kafka 测试工具
+  kafka-tools:
+    image: apache/kafka:3.7.0
+    container_name: kafka-tools
+    restart: unless-stopped
+    working_dir: /opt/kafka/bin/
+    volumes:
+      - ./client-config.properties:/opt/kafka/bin/client-config.properties
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-tools:9092
+      # 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@0.0.0.0:9093
+      KAFKA_CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # 2
+      KAFKA_SASL_KERBEROS_SERVICE_NAME: kafka
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - kafka-network
+
+  # 无需认证的kafka broker
+  kafka-plain:
+    image: apache/kafka:3.7.0
+    container_name: kafka-plain
+    restart: unless-stopped
+    working_dir: /opt/kafka/bin/
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-plain:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER  
+      # 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@0.0.0.0:9093
+      KAFKA_CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      
+      # 2
+      KAFKA_SASL_KERBEROS_SERVICE_NAME: kafka
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - kafka-network
+  
+  # 使用sasl-plain认证的kafka broker
+  kafka-sasl-plaintext:
+    image: apache/kafka:3.7.0
+    container_name: kafka-sasl-plaintext
+    restart: unless-stopped
+    ports:
+      - "8092:9092"
+    working_dir: /opt/kafka/bin/
+    environment:
+      KAFKA_LISTENERS: SASL_PLAINTEXT://:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: SASL_PLAINTEXT://kafka-sasl-plaintext:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: SASL_PLAINTEXT:SASL_PLAINTEXT,CONTROLLER:PLAINTEXT
+      # 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME:
+        SASL_PLAINTEXT
+      # 保留多行文本的格式
+      KAFKA_LISTENER_SASL_JAAS_CONFIG: |
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="admin"
+        password="admin123456"
+        user_admin="admin123"
+
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf"
+
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+
+      # 额外
+      KAFKA_SASL_KERBEROS_SERVICE_NAME: kafka
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    volumes:
+      - ./kafka_server_jaas.conf:/etc/kafka/secrets/kafka_server_jaas.conf
+    networks:
+      - kafka-network
+
+
+    
+networks:
+  kafka-network:
+    name: kafka-network
