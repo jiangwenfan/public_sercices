@@ -67,6 +67,7 @@ services:
       # 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_NODE_ID: 1
+      # kafka-plain:9093
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@0.0.0.0:9093
       KAFKA_CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
       KAFKA_LOG_DIRS: /var/lib/kafka/data
@@ -105,7 +106,7 @@ services:
         org.apache.kafka.common.security.plain.PlainLoginModule required
         username="admin"
         password="admin123456"
-        user_admin="admin123"
+        user_admin="admin123";
 
       KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/secrets/kafka_server_jaas.conf"
 
