@@ -1,0 +1,29 @@
+# TODO 服务器IP
+serverAddr = "xxxx"
+serverPort = 7000
+
+[[proxies]]
+name = "ssh"
+type = "tcp"
+localPort = 22
+remotePort = 10022
+
+# sample 1
+# [[proxies]]
+# name = "web"
+# type = "tcp"
+# localPort = 80
+# remotePort = 10023
+
+# sample 2
+# 使用http协议时,需要配置subDomain,并且在dns服务器上添加A记录到服务器IP
+# type = "http"
+# localPort = 80
+# subDomain = ["www.example.com"]
+
+# sample 3
+# [[proxies]]
+# name = "db"
+# type = "tcp"
+# localPort = 3306
+# remotePort = 10024

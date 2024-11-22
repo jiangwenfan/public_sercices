@@ -1,0 +1,25 @@
+services:
+
+  frps:
+    container_name: frps
+    image: snowdreamtech/frps
+    restart: unless-stopped
+    
+    # 这里添加需要映射转发的端口
+    ports:
+      - "7000:7000"
+      # 1002[x] 宿主机
+      - "10022:10022" # host ssh
+      - "10023:10023" 
+      - "10024:10024" 
+      - "10025:10025"
+      - "10026:10026"
+      - "10027:10027"
+      - "10028:10028"
+      - "10029:10029"
+
+      # 1003[x] 虚拟机
+      - "10032:10032" # node1
+      
+    volumes:
+      - ./frps.toml:/etc/frp/frps.toml
