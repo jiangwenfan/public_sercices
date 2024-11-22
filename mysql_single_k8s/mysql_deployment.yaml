@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  labels:
+    env: test
+    app: mysql-app
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mysql-test-jwf
+  template:
+    metadata:
+      # name: mysql-pod
+      labels:
+        app: mysql-test-jwf
+    spec:
+      containers:
+        - image: mysql:8.0
+          imagePullPolicy: IfNotPresent
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "admin123K#"
+          ports:
+            - containerPort: 3306
+
+# kubectl get deploy
+# kubectl describe deploy mysql-deployment
+# kubectl delete deploy mysql-deployment
+

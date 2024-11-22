@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  nfs-server:
+    image: itsthenetwork/nfs-server-alpine:latest
+    container_name: nfs-server
+    privileged: true
+    environment:
+      - SHARED_DIRECTORY=/nfsshare
+    volumes:
+      - /opt/share_abc:/nfsshare
+    restart: always
+    network_mode: "host"
+
+# 使用保留端口，nfs4版本
+# sudo mount -o resvport,nfsvers=4,proto=tcp 192.168.90.167:/ ./aaa

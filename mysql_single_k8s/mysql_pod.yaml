@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod
+  labels:
+    env: test
+
+spec:
+  containers:
+  - image: mysql:8.0
+    imagePullPolicy: IfNotPresent
+    name: mysql
+    env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: "admin123K#"
+    
+# kubectl get pod
+# kubectl describe pod mysql-pod
+# kubectl delete pod mysql-pod
+
+# kubectl logs -f mysql-pod
+
+# kubectl cp mysql_pod.yaml mysql-pod:/tmp
+# kubectl exec -it mysql-pod -- /bin/bash

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  labels:
+    env: test
+
+spec:
+  selector:
+    app: mysql-test-jwf
+  # default: ClusterIP,用来做负载均衡
+  type: NodePort
+  ports:
+    - port: 3307
+      targetPort: 3306
+      protocol: TCP
