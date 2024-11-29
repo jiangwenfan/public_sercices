@@ -9,6 +9,8 @@ z_other 测试相关
 # nginx
 ccr.ccs.tencentyun.com/docker-hub-cache/nginx:1.27.3 
 ccr.ccs.tencentyun.com/docker-hub-cache/nginx:1.26.2
+# nfs
+ccr.ccs.tencentyun.com/docker-hub-cache/erichough-nfs-server:2.2.1
 
 
 # mysql

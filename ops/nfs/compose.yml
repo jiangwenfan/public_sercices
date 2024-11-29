@@ -1,16 +1,31 @@
-version: '3'
+# 客户端使用:
+#     sudo apt update && sudo apt install -y nfs-common
+#     挂载: mount -t nfs 172.20.0.2[容器ip]:/data11 ./nfs-test-dir
+# 取消挂载: umount nfs-test-dir 
+# 验证: df -h | grep /mnt/nfs-test
 
 services:
   nfs-server:
-    image: itsthenetwork/nfs-server-alpine:latest
+    image: erichough/nfs-server:2.2.1
     container_name: nfs-server
     privileged: true
-    environment:
-      - SHARED_DIRECTORY=/nfsshare
+    ports:
+      - "2049:2049"
     volumes:
-      - /opt/share_abc:/nfsshare
-    restart: always
-    network_mode: "host"
-
-# 使用保留端口，nfs4版本
-# sudo mount -o resvport,nfsvers=4,proto=tcp 192.168.90.167:/ ./aaa
+      # 数据实际存储的本机目录data1:容器内要恭喜的目录data11
+      - ./data1:/data11
+    environment:
+      # 容器内要共享的目录配置data11
+      - NFS_EXPORT_1=/data11 *(rw,sync,no_subtree_check,no_root_squash)
+    cap_add:
+      - SYS_ADMIN
+  # nfs-server:
+  #   image: itsthenetwork/nfs-server-alpine:latest
+  #   container_name: nfs-server
+  #   privileged: true
+  #   environment:
+  #     - SHARED_DIRECTORY=/nfsshare
+  #   volumes:
+  #     - /opt/share_abc:/nfsshare
+  #   restart: always
+  #   network_mode: "host"
