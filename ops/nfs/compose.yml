@@ -6,9 +6,18 @@
 
 services:
   nfs-server:
+    # 主机上需要启用 nfsd 、nfs 模块
+    # 查看当前是否启用:
+    #     lsmod | grep nfs
+    #     cat /etc/modules
+    # 启用:
+    #     临时: modprobe {nfs,nfsd}
+    #     永久: echo "nfsd" >> /etc/modules
+    #          echo "nfs" >> /etc/modules
     image: erichough/nfs-server:2.2.1
     container_name: nfs-server
     privileged: true
+    restart: unless-stopped
     ports:
       - "2049:2049"
     volumes:

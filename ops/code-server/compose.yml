@@ -1,0 +1,25 @@
+services:
+  code-server:
+    image: lscr.io/linuxserver/code-server:4.95.3
+    container_name: code-server
+    environment:
+      # 用户的uid和gid, 用于挂载卷时设置文件的权限. id userxxx
+      # 用户名默认是abc,默认家目录是/config
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai # 设置上海时区
+      # 不提供密码则不进行验证
+      - PASSWORD=admin123 # webui的明文密码.
+      # - HASHED_PASSWORD= # webui的明文密码的hash值, 优先级高于PASSWORD
+      - SUDO_PASSWORD=admin123 # sudo的明文密码
+      # - SUDO_PASSWORD_HASH= 
+      # - DEFAULT_WORKSPACE=/config/workspace # 默认打开的工作目录
+    volumes:
+      # 保存vscode的配置/插件数据
+      - ./code-server-data:/config
+    ports:
+      - 8443:8443
+    restart: unless-stopped
+
+# 1. 安装 dev containers 插件
+# 2. 启动 code-server
