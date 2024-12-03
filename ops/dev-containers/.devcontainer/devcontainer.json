@@ -1,0 +1,48 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Configure tool-specific properties.
+	// The order of the files is important since later files override previous ones
+	"dockerComposeFile": ["docker-compose.yml"], // 使用docker-compose.yml文件构建dev容器
+	"service": "python-dev-container", // 配置使用那个container服务
+	"shutdownAction": "none", // 断开连接时,dev容器不会关闭
+
+	"workspaceFolder": "/pro", // 默认打开的工作目录
+	
+
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"Gruntfuggly.todo-tree",
+				"ms-python.isort",
+				"ms-python.flake8",
+				"github.vscode-github-actions",
+				"ms-python.black-formatter",
+				"mhutchie.git-graph",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [9000],
+	// Use 'portsAttributes' to set default properties for specific forwarded ports. 
+	// More info: https://containers.dev/implementors/json_reference/#port-attributes
+	// "portsAttributes": {
+	// 	"9000": {
+	// 		"label": "Hello Remote World",
+	// 		"onAutoForward": "notify"
+	// 	}
+	// },
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "pip3 install -r requirements.txt"
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

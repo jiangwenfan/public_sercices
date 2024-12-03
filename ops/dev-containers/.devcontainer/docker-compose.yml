@@ -1,0 +1,12 @@
+services:
+  python-dev-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-dev-container
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ../aaa:/pro/aaa
+      - ../bbb:/pro/bbb
+      - .:/workspace:cached
+    
