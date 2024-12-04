@@ -1,12 +1,26 @@
 services:
+  # TODO 制作nodejs容器
   python-dev-container:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # 标签更新为最新版本
+    # 国内替换腾讯云: 
+    image: evans2jiang/python-dev-container:xxx
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: python-dev-container
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
-      - ../aaa:/pro/aaa
-      - ../bbb:/pro/bbb
+      # TODO【要修改】
+      - ../aaa:/aaa
       - .:/workspace:cached
+      # 挂载docker套接字,容器支持使用主机的docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins
+      - /usr/bin/docker:/usr/bin/docker
     
+     
+      # dev 容器:
+      # dev容器使用指南： 好处：不使用主机环境，多个项目的环境相互隔离。  
+      # 使用流程：将dev-container 中的文件放到要处理的项目下，在git 忽略中添加对这个目录的忽略。
+      # 首次打开时会自动生成该项目的环境，随后关闭项目，第二次打开将使用已经存在的环境，采取的是这种ide环境和运行环境分开的方案。 
+      # 业务运行环境重新构建时，代码还可以正常编辑的；和多项目环境共用问题

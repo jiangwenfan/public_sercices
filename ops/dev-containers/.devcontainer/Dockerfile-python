@@ -1,11 +1,13 @@
-# ARG VARIANT=22-bookworm
-# FROM node:${VARIANT}
+
 FROM mcr.microsoft.com/devcontainers/python:1-3.12
 
-RUN apt update && apt install -y vim
+RUN apt update && apt install -y vim  \
+    iputils-ping netcat-openbsd \
+    default-mysql-client redis-tools 
 
-RUN mkdir /pro
-# TODO mysql
+
+# ARG VARIANT=22-bookworm
+# FROM node:${VARIANT}
 
 # ARG USERNAME=node
 # ARG NPM_GLOBAL=/usr/local/share/npm-global

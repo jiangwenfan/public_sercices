@@ -11,7 +11,8 @@
 	"service": "python-dev-container", // 配置使用那个container服务
 	"shutdownAction": "none", // 断开连接时,dev容器不会关闭
 
-	"workspaceFolder": "/pro", // 默认打开的工作目录
+	// TODO 【要修改】
+	"workspaceFolder": "/workspace", // 默认打开的工作目录
 	
 
 	"customizations": {
@@ -26,7 +27,8 @@
 				"github.vscode-github-actions",
 				"ms-python.black-formatter",
 				"mhutchie.git-graph",
-				"ms-azuretools.vscode-docker"
+				"ms-azuretools.vscode-docker",
+				"actboy168.tasks"
 			]
 		}
 	},
