@@ -7,8 +7,8 @@ services:
     container_name: python-dev-container
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
-      # TODO【要修改】
-      - ./../:/xxxx
+      # 将项目家目录挂载到容器的工作空间下
+      - ./../:/backend
       # 挂载docker套接字,容器支持使用主机的docker
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins

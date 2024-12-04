@@ -8,6 +8,8 @@ dev容器使用教程:
 
 - 将当前目录下的`文件(.vscode 和 .devcontainer)`拷贝到`项目根目录`中
 - 在`项目目录`下的`.gitignore`文件中添加忽略, 添加内容: `.devcontainer`和`.vscode`
+- 项目的`compose文件`中的`volumes`部分,不能使用`相对路径`,需要使用`绝对路径`
+  - `- /home/jwf/PhishOne-backend/phishone:/phishone`
 
 ---
 

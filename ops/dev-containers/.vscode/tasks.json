@@ -4,6 +4,12 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label":"host-bash",
+            "type": "shell",
+            "command": "ssh xxx@1.1.1.1",
+            "problemMatcher": []
+        },
+        {
             "label": "mysql-cli",
             "type": "shell",
             "group":"test",

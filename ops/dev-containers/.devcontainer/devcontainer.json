@@ -10,8 +10,8 @@
 	"shutdownAction": "none",
 
 
-	// TODO 【要修改】
-	"workspaceFolder": "/xxx", // 默认打开的工作目录
+	// TODO 【要修改】 默认打开的项目目录
+	"workspaceFolder": "/backend", 
 	
 
 	"customizations": {
