@@ -1,22 +1,23 @@
 {
 	"name": "Python 3",
 	
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-	// Configure tool-specific properties.
-	// The order of the files is important since later files override previous ones
-	"dockerComposeFile": ["docker-compose.yml"], // 使用docker-compose.yml文件构建dev容器
-	"service": "python-dev-container", // 配置使用那个container服务
-	"shutdownAction": "none", // 断开连接时,dev容器不会关闭
+
+	// 使用docker-compose.yml文件构建dev容器
+	"dockerComposeFile": ["docker-compose.yml"],
+	// 配置使用那个container服务
+	"service": "python-dev-container",
+	// 断开连接时,dev容器不会关闭
+	"shutdownAction": "none",
+
 
 	// TODO 【要修改】
 	"workspaceFolder": "/workspace", // 默认打开的工作目录
 	
 
 	"customizations": {
-		// Configure properties specific to VS Code.
 		"vscode": {
 			"settings": {},
+			// vscode 常用扩展插件
 			"extensions": [
 				"streetsidesoftware.code-spell-checker",
 				"Gruntfuggly.todo-tree",
@@ -29,7 +30,7 @@
 				"actboy168.tasks"
 			]
 		}
-	},
+	}
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [9000],

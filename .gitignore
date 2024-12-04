@@ -1,7 +1,6 @@
 .env
 server.crt
 server.key
-.vscode
 language-backend.conf
 language-frontend.conf
 interview-backend.conf

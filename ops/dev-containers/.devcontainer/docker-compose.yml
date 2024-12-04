@@ -1,9 +1,10 @@
 services:
   # TODO 制作nodejs容器
   python-dev-container:
-    # 标签更新为最新版本
-    # 国内替换腾讯云: 
-    image: evans2jiang/python-dev-container:xxx
+    # TODO【要修改】标签更新为最新版本
+    # 国内替换腾讯云: ccr.ccs.tencentyun.com/docker-hub-cache/evans2jiang_python-dev-container:v0.1
+    image: evans2jiang/python-dev-container:v0.1
+    # [仅开发使用]
     # build:
     #   context: .
     #   dockerfile: Dockerfile
