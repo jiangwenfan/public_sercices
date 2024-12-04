@@ -45,7 +45,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           context: ./ops/dev-containers/.devcontainer
-          file: Dockerfile-python
+          file: ./ops/dev-containers/.devcontainer/Dockerfile-python
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/python-dev-container:${{ inputs.tag }}
           labels: ${{ steps.meta.outputs.labels }}
