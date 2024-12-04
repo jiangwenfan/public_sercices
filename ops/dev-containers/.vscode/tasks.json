@@ -8,7 +8,7 @@
             "type": "shell",
             "group":"test",
             // [选项1] 通过容器连接
-            "command": "docker exec -it xxxx mysql -uxxx -pxxx'",
+            "command": "sudo docker exec -it xxxx mysql -uxxx -pxxx -Dyyy",
             // [选项2] 通过主机连接
             // "command": "mysql -h 1.1.1.1 -P3307 -uxxx -pxxxx"
             // [选项3] 通过ssh连接 -t 参数表示可以交互
@@ -19,7 +19,7 @@
             "label": "redis-cli",
             "type": "shell",
             "group":"test",
-            "command": "docker exec -it xxxx redis-cli",
+            "command": "sudo docker exec -it xxxx redis-cli",
             "problemMatcher": [],
         },
         // 进入容器
@@ -27,27 +27,27 @@
             "label": "django",
             "type": "shell",
             "group":"test",
-            "command": "docker exec -it xxxx /bin/bash",
+            "command": "sudo docker exec -it xxxx /bin/bash",
             "problemMatcher": []
         },
         {
             "label": "nginx",
             "type": "shell",
             "group":"test",
-            "command": "docker exec -it xxxx /bin/bash",
+            "command": "sudo docker exec -it xxxx /bin/sh",
             "problemMatcher": []
         },
         // 查看容器日志
         {
             "label":"django-log",
             "type": "shell",
-            "command": "docker logs -f xxxx",
+            "command": "sudo docker logs -f xxxx",
             "problemMatcher": []
         },
         {
             "label":"celery-log",
             "type": "shell",
-            "command": "docker logs -f xxxx",
+            "command": "sudo docker logs -f xxxx",
             "problemMatcher": []
         },
 
@@ -55,7 +55,7 @@
         {
             "label": "reboot backend",
             "type": "shell",
-            "command": "docker compose -f xxxx/docker-compose.yml up -d",
+            "command": "sudo docker compose -f docker-compose.yml up -d",
             "group": "build",
             "problemMatcher": []
         },
@@ -63,7 +63,7 @@
             "label": "rebuild backend",
             "type": "shell",
             "group": "build",
-            "command": "docker compose -f xxxx/docker-compose.yml up -d --build",
+            "command": "sudo docker compose -f docker-compose.yml up -d --build",
             "problemMatcher": []
         }
     ]
