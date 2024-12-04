@@ -5,6 +5,7 @@ RUN apt update && apt install -y vim  \
     iputils-ping netcat-openbsd \
     default-mysql-client redis-tools 
 
+# TODO 制作nodejs容器
 
 # ARG VARIANT=22-bookworm
 # FROM node:${VARIANT}
