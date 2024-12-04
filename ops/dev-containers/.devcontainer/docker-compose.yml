@@ -1,18 +1,14 @@
 services:
   python-dev-container:
-    # TODO【要修改】标签更新为最新版本
-    # 国内替换腾讯云: ccr.ccs.tencentyun.com/docker-hub-cache/evans2jiang_python-dev-container:v0.1
-    image: evans2jiang/python-dev-container:v0.1
-    # [仅开发使用]
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    image: python-dev-container:latest
+    build:
+      context: .
+      dockerfile: Dockerfile-python
     container_name: python-dev-container
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       # TODO【要修改】
-      - ../aaa:/aaa
-      - .:/workspace:cached
+      - ./../:/xxxx
       # 挂载docker套接字,容器支持使用主机的docker
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/libexec/docker/cli-plugins:/usr/libexec/docker/cli-plugins

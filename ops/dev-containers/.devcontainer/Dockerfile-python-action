@@ -1,10 +1,9 @@
 
-# TODO【要修改】标签更新为最新版本
-# 国内替换腾讯云: ccr.ccs.tencentyun.com/docker-hub-cache/evans2jiang_python-dev-container:v0.1
-FROM evans2jiang/python-dev-container:v0.1
+FROM mcr.microsoft.com/devcontainers/python:1-3.12
 
-# TODO 【要修改】修改为要挂载的目录
-RUN mkdir /xxx
+RUN apt update && apt install -y vim  \
+    iputils-ping netcat-openbsd \
+    default-mysql-client redis-tools 
 
 
 

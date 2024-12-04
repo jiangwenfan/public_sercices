@@ -11,7 +11,7 @@
 
 
 	// TODO 【要修改】
-	"workspaceFolder": "/workspace", // 默认打开的工作目录
+	"workspaceFolder": "/xxx", // 默认打开的工作目录
 	
 
 	"customizations": {
