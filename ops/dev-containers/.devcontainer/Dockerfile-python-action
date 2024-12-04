@@ -10,6 +10,10 @@ RUN mkdir /backend
 
 
 # TODO 制作nodejs容器
+# TODO 制作django 源码调试容器
+# 1. 将的容器内源码上的笔记信息 挂载到主机上
+# 2.  编辑器和代码在一个容器中，只有这样才能直接跳转编辑源码
+# 3. Django包依赖所在的必须存在本地，版本管理，并且挂载容器中，镜像中不能含有这个django 包的依赖
 
 # ARG VARIANT=22-bookworm
 # FROM node:${VARIANT}
