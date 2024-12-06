@@ -1,7 +1,7 @@
 {
 	"name": "Python 3",
 	
-
+	// TODO 增加自动安装依赖
 	// 使用docker-compose.yml文件构建dev容器
 	"dockerComposeFile": ["docker-compose.yml"],
 	// 配置使用那个container服务

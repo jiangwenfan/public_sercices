@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+
+<body>
+  <p>
+
+    <code>
+      使用es来搜索anki中的笔记
+      1. 保证es正常启动
+      2. 保证anki被打开
+    </code>
+  </p>
+  <button onclick="main()">同步数据</button>
+  <h5 id="info"></h5>
+  <!-- 输入框 -->
+  <form id="searchForm">
+    <label for="keyword">输入关键字: </label>
+    <input type="text" id="keyword" name="keyword" required>
+    <button type="submit">提交</button>
+  </form>
+  <!-- 结果 -->
+  <div id="result"></div>
+
+</body>
+
+<script>
+
+  data = {
+    // action: "deckNamesAndIds",
+    "action": "deckNames",
+    version: 6,
+  };
+  url = "http://localhost:8765";
+
+  // 获取所有牌组
+  async function get_all_decks() {
+    const response = await fetch("http://localhost:8765", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json", // 指定内容类型为 JSON
+      },
+      body: JSON.stringify(data),
+    });
+    const raw_response_data = await response.json();
+    const all_decks = raw_response_data.result;
+    // console.log(all_decks);
+    return all_decks;
+  }
+
+  // 获取每个牌组的所有卡片
+  async function get_all_cords_from_deck(deck_name) {
+    data = {
+      "action": "findCards",
+      "version": 6,
+      "params": {
+        "query": `deck:${deck_name}`
+      }
+    }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    })
+    const raw_response_data = await response.json();
+    const all_cards = raw_response_data.result;
+    // console.log(all_cards);
+    return all_cards;
+  }
+
+  // 批量获取card的 问题和答案
+  async function get_card_info_cardsId(cardsId) {
+    data = {
+      "action": "cardsInfo",
+      "version": 6,
+      "params": {
+        "cards": cardsId
+      }
+    }
+    const resposne = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    })
+
+    const raw_response_data = await resposne.json()
+    const raw_response_result = raw_response_data.result
+    // 解析数据
+    const new_result = raw_response_result.map(card => {
+      clean_data = card.fields
+      true_data = clean_data["正面"].value
+      false_data = clean_data["背面"].value
+      return {
+        "question": true_data,
+        "answer": false_data
+      }
+    });
+    // console.log(new_result);
+    return new_result
+  }
+
+  // ---------------------------
+  const es_url = "http://localhost:9200"
+
+  // 获取索引中的文档数量
+  async function get_docu_nums() {
+    const response = await fetch(es_url + "/anki/_count", {
+      method: "GET"
+    })
+    if (response.status != 200) {
+      console.error("获取文档数量失败")
+    }
+    const raw_response_data = await response.json()
+    const nums = raw_response_data.count
+    console.log("文档数量", nums)
+    // 更新dom
+    document.getElementById("info").innerText = "当前文档数量:" + nums
+    return nums
+  }
+
+  // 创建索引
+  async function create_index() {
+    const url = es_url + "/anki"
+    const response = await fetch(url, {
+      method: "HEAD",
+    })
+    if (response.status == 404) {
+      // 索引不存在创建索引
+      const response = await fetch(url, {
+        method: "PUT"
+      })
+      const raw_response_data = await response.json()
+      if (raw_response_data.acknowledged != true) {
+        console.error("索引创建失败");
+      }
+    }
+  }
+  // 插入文档
+  async function insert_document(data) {
+    const url = es_url + "/anki"
+    doc_url = url + "/_doc"
+    // data = { a: 11, age: 22 }
+    const response = await fetch(doc_url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    })
+    if (response.status != 201) {
+      console.error("插入失败", data)
+    }
+  }
+
+  // 模糊搜索关键字
+  async function search_answer(key) {
+    const url = es_url + "/anki/_search"
+    const data = {
+      "query": {
+        "multi_match": {
+          "query": key,
+          "fields": ["question", "answer"],
+          "fuzziness": "AUTO"
+        }
+      }
+    }
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data)
+    })
+
+    if (response.status != 200) {
+      console.error("搜索失败")
+    }
+    const raw_response_data = await response.json()
+    const raw_res = raw_response_data.hits.hits
+    const new_res = raw_res.map(item => {
+      const source_data = item._source
+      return source_data
+    })
+    console.log(new_res)
+    return new_res
+  }
+  // ---------------------------
+  window.onload = get_docu_nums
+
+  async function main() {
+    create_index()
+
+    const all_decks_name = await get_all_decks()
+
+    for (const deckName of all_decks_name) {
+      console.log("获取牌组", deckName)
+      const cardsId = await get_all_cords_from_deck(deckName)
+      all_qa = await get_card_info_cardsId(cardsId)
+
+      for (const qa of all_qa) {
+        insert_document(qa)
+      }
+      console.log("导入牌组成功", deckName)
+    }
+  }
+
+  // ----------
+  document.getElementById("searchForm").addEventListener("submit",
+    async (event) => {
+      event.preventDefault(); // 阻止默认表单提交行为
+
+      const keyword = document.getElementById("keyword").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!keyword) {
+        resultDiv.textContent = "请输入有效的关键词！";
+        return;
+      }
+
+      // 显示加载状态
+      resultDiv.textContent = "加载中...";
+
+      // try {
+      //   // 模拟向后端发送请求
+
+      //   // const response = await fetch(`https://api.example.com/search?q=${encodeURIComponent(keyword)}`);
+
+      //   // if (!response.ok) {
+      //   //   throw new Error(`请求失败：${response.status}`);
+      //   // }
+
+      //   // 获取 JSON 响应数据
+      //   // const data = await response.json();
+
+      //   // 显示结果
+      //   if (data.results && data.results.length > 0) {
+      //     resultDiv.innerHTML = `<h3>搜索结果:</h3><ul>${data.results.map(item => `<li>${item}</li>`).join("")}</ul>`;
+      //   } else {
+      //     resultDiv.textContent = "未找到相关结果。";
+      //   }
+      // } catch (error) {
+      //   // 处理错误
+      //   resultDiv.textContent = `发生错误：${error.message}`;
+      // }
+
+      const data = await search_answer(keyword)
+      const htmlData = data.map(item => {
+        return `<li>${item.question} ${item.answer}</li>`
+      })
+      resultDiv.innerHTML = `<h3>搜索结果:</h3><ul>${htmlData}</ul>`;
+    });
+
+</script>
+
+</html>

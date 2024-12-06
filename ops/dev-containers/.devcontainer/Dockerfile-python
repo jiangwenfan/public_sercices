@@ -4,7 +4,7 @@
 FROM evans2jiang/python-dev-container:v0.1
 
 # TODO 修改vscode用户为自定义用户，解决使用sudo的烦恼
-
+# TODO 增加ipython,创建自动导入配置文件。为后续其他业务开发镜像使用简化流程
 
 # ARG VARIANT=22-bookworm
 # FROM node:${VARIANT}

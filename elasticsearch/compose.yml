@@ -11,6 +11,11 @@ services:
     #
     environment:
       - "discovery.type=single-node"
+      # 启用cors,支持浏览器直接访问
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - http.cors.allow-headers=X-Requested-With, Content-Type, Authorization
+      - http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE
     ports:
       - "9200:9200"
       - "9300:9300"
