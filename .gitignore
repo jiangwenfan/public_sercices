@@ -9,3 +9,7 @@ init.sql
 node_modules
 aaa
 bbb
+*.crt
+secret
+certs_backup
+temp_data

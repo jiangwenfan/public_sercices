@@ -1,0 +1,91 @@
+name: public-service
+
+services:
+  # 首次访问：https://localhost:9200 使用elastic用户和.env中的密码
+  single-es:
+    image: custom_elasticsearch:8.16.1
+    build: .
+    container_name: single-es
+    # kibana希望拿着证书通过容器名进行访问，
+    # srt证书根据主机名生成, 所以容器名和主机名保持一致
+    hostname: single-es
+    restart: unless-stopped
+    volumes:
+      # 将容器内的生成证书文件拷贝到外部,主要是kibana使用. 容器内单向覆盖主机
+      - ./certs_backup:/usr/share/elasticsearch/certs_backup
+      # 保存es数据
+      # - ./temp_data:/usr/share/elasticsearch/data  # mac 系统上，不能保存到当前目录，会产生权限问题无法读取
+      - single-es-data:/usr/share/elasticsearch/data
+    environment:
+      # 设置集群elastic用户的密码
+      # 重置密码 docker exec -t single-es bin/elasticsearch-reset-password -u elastic -b -s
+      - ELASTIC_PASSWORD=RdfmO2cc1Z7SgzF3Au
+      # 脚本中，自定义处理的变量
+      - KIBANA_PASSWORD=RdfmO2cc1Z7S
+
+    #   - "discovery.type=single-node"
+    #   # 启用cors,支持浏览器直接访问
+    #   - http.cors.enabled=true
+    #   - http.cors.allow-origin=*
+    #   - http.cors.allow-headers=X-Requested-With, Content-Type, Authorization
+    #   - http.cors.allow-methods=OPTIONS, HEAD, GET, POST, PUT, DELETE
+    # 机器学习: "xpack.ml.use_auto_machine_memory_percent=true"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    deploy:
+      resources:
+        limits:
+          memory: 3g # 内存限制
+    
+    healthcheck:
+      # 检查elastic用户和kibana用户，是否重置成功
+      test: [
+        "CMD-SHELL",
+        "/usr/share/elasticsearch/health_check.sh"
+      ]
+      interval: 5s
+      timeout: 10s
+      retries: 120
+      start_period: 20s
+    networks:
+      - public-service-network
+
+
+  # http://localhost:5601/ 登陆使用elastic和env的密码
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.16.1
+    container_name: kibana
+    environment:
+      # 配置es信息
+      # 如果不手动配置es信息:
+      # 1. 需要在es中生成初始化token: bin/elasticsearch-create-enrollment-token -s kibana 
+      # 2. 从kibana日志中获取初始化url: docker logs kibana |grep "Go to" 
+      - ELASTICSEARCH_HOSTS=https://single-es:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      # - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_PASSWORD=RdfmO2cc1Z7S
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=/usr/share/kibana/certs_backup/http_ca.crt
+    volumes:
+      - ./certs_backup:/usr/share/kibana/certs_backup
+    ports:
+      - "5601:5601"
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:5601/api/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    depends_on:
+        # 当es集群健康时,启动kibana容器完成初始化工作
+        single-es:
+          condition: service_healthy
+    networks:
+      - public-service-network
+volumes:
+  single-es-data:
+    driver: local
+    name: single-es-data
+
+networks:
+  public-service-network:
+    name: public-service-network
